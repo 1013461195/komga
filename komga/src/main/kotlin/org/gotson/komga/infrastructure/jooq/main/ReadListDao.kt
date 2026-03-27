@@ -3,8 +3,8 @@ package org.gotson.komga.infrastructure.jooq.main
 import org.gotson.komga.domain.model.ContentRestrictions
 import org.gotson.komga.domain.model.ReadList
 import org.gotson.komga.domain.persistence.ReadListRepository
-import org.gotson.komga.infrastructure.datasource.SqliteUdfDataSource
 import org.gotson.komga.infrastructure.jooq.SplitDslDaoBase
+import org.gotson.komga.infrastructure.jooq.unicodeSort
 import org.gotson.komga.infrastructure.jooq.TempTable.Companion.withTempTable
 import org.gotson.komga.infrastructure.jooq.inOrNoCondition
 import org.gotson.komga.infrastructure.jooq.sortByValues
@@ -46,7 +46,7 @@ class ReadListDao(
 
   private val sorts =
     mapOf(
-      "name" to rl.NAME.collate(SqliteUdfDataSource.COLLATION_UNICODE_3),
+      "name" to rl.NAME.unicodeSort(),
       "createdDate" to rl.CREATED_DATE,
       "lastModifiedDate" to rl.LAST_MODIFIED_DATE,
     )

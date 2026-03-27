@@ -7,7 +7,6 @@ import org.gotson.komga.domain.model.ReadStatus
 import org.gotson.komga.domain.model.SearchCondition
 import org.gotson.komga.domain.model.SearchContext
 import org.gotson.komga.domain.model.SearchOperator
-import org.gotson.komga.infrastructure.datasource.SqliteUdfDataSource
 import org.gotson.komga.infrastructure.jooq.RequiredJoin.ReadProgress
 import org.gotson.komga.jooq.main.Tables
 import org.jooq.Condition
@@ -149,7 +148,7 @@ class BookSearchHelper(
               .from(Tables.BOOK_METADATA_TAG)
               .where(
                 Tables.BOOK_METADATA_TAG.TAG
-                  .collate(SqliteUdfDataSource.COLLATION_UNICODE_3)
+                  .unicodeSort()
                   .equalIgnoreCase(tag),
               )
           }
@@ -179,14 +178,14 @@ class BookSearchHelper(
                 if (name != null)
                   and(
                     Tables.BOOK_METADATA_AUTHOR.NAME
-                      .collate(SqliteUdfDataSource.COLLATION_UNICODE_3)
+                      .unicodeSort()
                       .equalIgnoreCase(name),
                   )
               }.apply {
                 if (role != null)
                   and(
                     Tables.BOOK_METADATA_AUTHOR.ROLE
-                      .collate(SqliteUdfDataSource.COLLATION_UNICODE_3)
+                      .unicodeSort()
                       .equalIgnoreCase(role),
                   )
               }

@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import org.gotson.komga.domain.model.AllowExclude
 import org.gotson.komga.domain.model.ContentRestrictions
 import org.gotson.komga.domain.model.MediaExtension
-import org.gotson.komga.infrastructure.datasource.SqliteUdfDataSource
 import org.gotson.komga.jooq.main.Tables
 import org.jooq.Condition
 import org.jooq.Field
@@ -15,7 +14,7 @@ import java.io.ByteArrayOutputStream
 import java.util.zip.GZIPInputStream
 import java.util.zip.GZIPOutputStream
 
-fun Field<String>.noCase() = this.collate("NOCASE")
+fun Field<String>.noCase() = DbCompat.caseInsensitive(this)
 
 fun Sort.toOrderBy(sorts: Map<String, Field<out Any>>): List<SortField<out Any>> =
   this.mapNotNull {
@@ -44,7 +43,9 @@ fun Field<String>.inOrNoCondition(list: Collection<String>?): Condition =
     else -> this.`in`(list)
   }
 
-fun Field<String>.udfStripAccents() = DSL.function(SqliteUdfDataSource.UDF_STRIP_ACCENTS, String::class.java, this)
+fun Field<String>.udfStripAccents() = DbCompat.stripAccents(this)
+
+fun Field<String>.unicodeSort() = DbCompat.unicodeCollation(this)
 
 fun ContentRestrictions.toCondition(): Condition {
   val ageAllowed =

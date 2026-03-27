@@ -3,8 +3,8 @@ package org.gotson.komga.infrastructure.jooq.main
 import org.gotson.komga.domain.model.ContentRestrictions
 import org.gotson.komga.domain.model.SeriesCollection
 import org.gotson.komga.domain.persistence.SeriesCollectionRepository
-import org.gotson.komga.infrastructure.datasource.SqliteUdfDataSource
 import org.gotson.komga.infrastructure.jooq.SplitDslDaoBase
+import org.gotson.komga.infrastructure.jooq.unicodeSort
 import org.gotson.komga.infrastructure.jooq.TempTable.Companion.withTempTable
 import org.gotson.komga.infrastructure.jooq.inOrNoCondition
 import org.gotson.komga.infrastructure.jooq.sortByValues
@@ -45,7 +45,7 @@ class SeriesCollectionDao(
 
   private val sorts =
     mapOf(
-      "name" to c.NAME.collate(SqliteUdfDataSource.COLLATION_UNICODE_3),
+      "name" to c.NAME.unicodeSort(),
     )
 
   override fun findByIdOrNull(
