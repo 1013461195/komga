@@ -1,5 +1,6 @@
 package org.gotson.komga.infrastructure.jooq
 
+import org.gotson.komga.infrastructure.jooq.DbCompat
 import org.jooq.DSLContext
 import org.jooq.ExecuteListenerProvider
 import org.jooq.SQLDialect
@@ -54,7 +55,12 @@ class KomgaJooqConfiguration {
     executeListenerProviders: ObjectProvider<ExecuteListenerProvider?>,
   ) = DefaultDSLContext(
     DefaultConfiguration().also { configuration ->
-      configuration.set(SQLDialect.SQLITE)
+      configuration.set(
+        when (DbCompat.dialect) {
+          DbCompat.DbType.SQLITE -> SQLDialect.SQLITE
+          DbCompat.DbType.POSTGRESQL -> SQLDialect.POSTGRES
+        },
+      )
       configuration.set(DataSourceConnectionProvider(TransactionAwareDataSourceProxy(dataSource)))
       transactionProvider.ifAvailable { newTransactionProvider: TransactionProvider? -> configuration.set(newTransactionProvider) }
       configuration.set(*executeListenerProviders.orderedStream().toList().toTypedArray())

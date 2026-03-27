@@ -3,6 +3,7 @@ package org.gotson.komga.infrastructure.datasource
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import org.gotson.komga.infrastructure.configuration.KomgaProperties
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.boot.jdbc.DataSourceBuilder
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -12,6 +13,7 @@ import org.sqlite.SQLiteDataSource
 import javax.sql.DataSource
 
 @Configuration
+@ConditionalOnProperty(name = ["komga.database.type"], havingValue = "sqlite", matchIfMissing = true)
 class DataSourcesConfiguration(
   private val komgaProperties: KomgaProperties,
 ) {

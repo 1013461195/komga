@@ -19,6 +19,8 @@ class ConfigurationChecker(
 
   @PostConstruct
   fun checkDatabasesPath() {
+    // Skip local filesystem check for non-SQLite databases
+    if (komgaProperties.database.type == "postgresql") return
     checkDatabaseIsLocal(komgaProperties.database, "komga.database.check-local-filesystem: false")
     checkDatabaseIsLocal(komgaProperties.tasksDb, "komga.tasks-db.check-local-filesystem: false")
   }

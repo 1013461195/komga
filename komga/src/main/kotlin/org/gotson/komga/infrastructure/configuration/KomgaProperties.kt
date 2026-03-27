@@ -55,8 +55,14 @@ class KomgaProperties {
   }
 
   class Database {
+    var type: String = "sqlite"
+
     @get:NotBlank
     var file: String = ""
+
+    var username: String? = null
+
+    var password: String? = null
 
     @get:Positive
     var batchChunkSize: Int = 1000

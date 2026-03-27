@@ -1,0 +1,11 @@
+komga:
+  database:
+    type: postgresql
+    file: jdbc:postgresql://10.10.10.12:5432/devdatabase
+    username: devuser
+    password: devpassword
+    max-pool-size: 10
+
+spring:
+  flyway:
+    locations: classpath:db/migration/postgresql
