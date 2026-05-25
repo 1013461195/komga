@@ -49,8 +49,10 @@ application {
 }
 
 // Work around temporary Compose bugs
-configurations.all {
-  attributes {
-    attribute(Attribute.of("ui", String::class.java), "awt")
+configurations.configureEach {
+  if (isCanBeResolved || isCanBeConsumed) {
+    attributes {
+      attribute(Attribute.of("ui", String::class.java), "awt")
+    }
   }
 }

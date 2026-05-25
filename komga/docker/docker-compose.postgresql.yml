@@ -1,0 +1,40 @@
+# Docker Compose configuration for Komga with PostgreSQL
+#
+# Usage:
+#   docker compose -f docker-compose.postgresql.yml up -d
+#
+# Environment variables (can be set in .env file or exported):
+#   KOMGA_CONFIGDIR - Komga configuration directory (default: ./config)
+#   POSTGRES_DB     - PostgreSQL database name (default: komga)
+#   POSTGRES_USER   - PostgreSQL username (default: komga)
+#   POSTGRES_PASSWORD - PostgreSQL password (required)
+#   KOMGA_PORT      - Komga web UI port (default: 25600)
+
+services:
+  komga:
+    image: gotson/komga:latest
+    container_name: komga
+    restart: unless-stopped
+    ports:
+      - "${KOMGA_PORT:-25600}:25600"
+    volumes:
+      - ${KOMGA_CONFIGDIR:-./config}:/config
+      - ./library:/library  # Mount your media library here
+    environment:
+      KOMGA_CONFIGDIR: /config
+      KOMGA_DATABASE_TYPE: postgresql
+      KOMGA_DATABASE_URL: jdbc:postgresql://10.168.50.254:15432/${POSTGRES_DB:-komga}
+      KOMGA_DATABASE_USERNAME: ${POSTGRES_USER:-komga}
+      KOMGA_DATABASE_PASSWORD: ${POSTGRES_PASSWORD:-}
+      KOMGA_DATABASE_MAX_POOL_SIZE: "10"
+      SPRING_PROFILES_ACTIVE: postgresql
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:25600/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+volumes:
+  postgres_data:
+    driver: local
