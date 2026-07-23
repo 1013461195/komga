@@ -1,0 +1,30 @@
+# Git
+.git
+.gitignore
+
+# IDE
+.idea
+.vscode
+*.iml
+
+# Build outputs
+komga/build
+komga-webui/dist
+komga-webui/node_modules
+
+# Docker
+docker-compose*.yml
+.dockerignore
+
+# Docs
+*.md
+LICENSE
+
+# Config
+config/
+.env
+.env.*
+
+# OS files
+.DS_Store
+Thumbs.db

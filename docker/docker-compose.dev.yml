@@ -1,0 +1,81 @@
+# Docker Compose for Komga Development Mode
+#
+# Frontend (Vue.js dev server) + Backend + PostgreSQL
+#
+# Start:
+#   cd docker && docker compose -f docker-compose.dev.yml up -d
+#
+# View logs:
+#   docker compose -f docker-compose.dev.yml logs -f
+#
+# Stop:
+#   docker compose -f docker-compose.dev.yml down
+
+services:
+  # ============ PostgreSQL ============
+  postgres:
+    image: postgres:16-alpine
+    container_name: komga-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: komga
+      POSTGRES_USER: komga
+      POSTGRES_PASSWORD: komga123
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U komga -d komga"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ============ Backend (Spring Boot) ============
+  backend:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.backend
+    image: komga-backend:local
+    container_name: komga-backend
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "25600:25600"
+    volumes:
+      - ../config:/config
+      - ../library:/library
+    environment:
+      KOMGA_CONFIGDIR: /config
+      KOMGA_DATABASE_TYPE: postgresql
+      KOMGA_DATABASE_FILE: jdbc:postgresql://postgres:5432/komga
+      KOMGA_DATABASE_USERNAME: komga
+      KOMGA_DATABASE_PASSWORD: komga123
+      KOMGA_DATABASE_MAX_POOL_SIZE: "10"
+      SPRING_PROFILES_ACTIVE: postgresql
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:25600/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 120s
+
+  # ============ Frontend (Vue.js Dev Server) ============
+  frontend:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.frontend
+    image: komga-frontend:local
+    container_name: komga-frontend
+    restart: unless-stopped
+    depends_on:
+      backend:
+        condition: service_healthy
+    ports:
+      - "8081:8081"
+    environment:
+      VUE_APP_KOMGA_API_URL: http://backend:25600
+
+volumes:
+  postgres_data:
+    driver: local

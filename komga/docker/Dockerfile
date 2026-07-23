@@ -1,5 +1,5 @@
 FROM eclipse-temurin:17-jre AS builder
-ARG JAR=komga/build/libs/komga-1.24.2.jar
+ARG JAR
 WORKDIR /builder
 COPY ${JAR} application.jar
 RUN java -Djarmode=tools -jar application.jar extract --layers --destination extracted

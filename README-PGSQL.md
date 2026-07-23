@@ -4,50 +4,64 @@
 
 ## 前置要求
 
-- Java 17 或更高版本
-- PostgreSQL 14 或更高版本
-- PostgreSQL `unaccent` 扩展（通常随 PostgreSQL 一起安装）
+- Docker（用于运行 PostgreSQL 和构建）
+- 无需本地安装 Java 或 Node.js（全部在容器内构建）
 
-## 方式一：Docker Compose（推荐）
+## 目录结构
 
-### 1. 准备环境变量
+```
+komga/
+├── docker/                          # Docker 相关文件
+│   ├── docker-compose.yml           # 生产模式
+│   ├── docker-compose.dev.yml       # 开发模式（前后端分离）
+│   ├── Dockerfile.production        # 生产模式 Dockerfile
+│   ├── Dockerfile.backend           # 开发模式 - 后端
+│   ├── Dockerfile.frontend          # 开发模式 - 前端
+│   └── .dockerignore
+├── komga/                           # 后端源码
+├── komga-webui/                     # 前端源码
+└── ...
+```
+
+## 方式一：生产模式（推荐）
 
 ```bash
-cd komga/docker
-cp .env.example .env
+cd docker
+docker compose up -d --build
 ```
 
-编辑 `.env` 文件，修改密码和媒体库路径：
+此命令会自动：
+1. 构建前端 (Vue.js)
+2. 构建后端 (Gradle + JDK 21)
+3. 启动 PostgreSQL
+4. 启动 Komga
 
-```ini
-POSTGRES_PASSWORD=your_secure_password_here
-# LIBRARY_PATH=/path/to/your/media/library
-```
+访问 `http://localhost:25600`
 
-### 2. 启动服务
+---
+
+## 方式二：开发模式（前后端分离）
+
+适合开发调试，前端支持热更新。
 
 ```bash
-cd komga/docker
-docker compose -f docker-compose.postgresql.yml up -d
+cd docker
+docker compose -f docker-compose.dev.yml up -d
 ```
 
-### 3. 访问 Komga
+### 访问
 
-打开浏览器访问 `http://localhost:25600`，首次启动会引导你创建管理员账户。
+| 服务 | 地址 |
+|------|------|
+| 前端 (Vue Dev Server) | `http://localhost:8081` |
+| 后端 API | `http://localhost:25600` |
+| PostgreSQL | `localhost:5432` |
 
-### 4. 查看日志
+### 说明
 
-```bash
-docker compose -f komga/docker/docker-compose.postgresql.yml logs -f komga
-```
-
-### 5. 停止服务
-
-```bash
-docker compose -f komga/docker/docker-compose.postgresql.yml down
-```
-
-数据保存在 Docker volume `postgres_data` 中，不会丢失。
+- 前端运行 `npm run serve`，修改代码会自动热更新
+- 前端通过代理将 `/api` 请求转发到后端
+- 数据保存在 Docker volume `postgres_data` 中
 
 ---
 
@@ -272,11 +286,8 @@ cd komga
 # 切换到 PostgreSQL 分支
 git checkout feature/postgres
 
-# 构建
-./gradlew :komga:bootJar
-
-# 运行
-java -jar komga/build/libs/komga-*.jar --spring.profiles.active=postgresql
+# 一键构建并启动
+docker compose up -d --build
 ```
 
 ---

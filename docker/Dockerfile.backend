@@ -1,0 +1,15 @@
+# Backend-only Dockerfile for Komga
+#
+# Prerequisites: Run build.bat or build.sh first to build the JAR
+#
+# Usage:
+#   build.bat
+#   cd docker && docker compose -f docker-compose.dev.yml up -d --build
+
+FROM eclipse-temurin:21-jre-alpine
+WORKDIR /app
+COPY komga/build/libs/komga-*.jar app.jar
+VOLUME /config
+ENV KOMGA_CONFIGDIR=/config
+EXPOSE 25600
+ENTRYPOINT ["java", "-jar", "app.jar"]
